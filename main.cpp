@@ -27,6 +27,7 @@ public: // for debugging keep public
   Node<T> *getNode(int pos) const;
   T getValue(int pos) const;
   void setvalue(int pos, T val) const;
+  void push(T val) const;
   // void pop();
   // void destroyNode(T &item);
   // void destroylist();
@@ -54,7 +55,7 @@ public: // for debugging keep public
     tail = head;
     count++;
   }
-  bool isEmpty() const { return (head == NULL); }
+  bool isEmpty() const { return (this->head == NULL); }
 
   int size() const {
     int count = 0;
@@ -65,7 +66,19 @@ public: // for debugging keep public
     }
     return count;
   } // size function end
-
+  void push(T val) {
+    Node<T> *n = new Node<T>;
+    n->value = val;
+    if (this->isEmpty()) {
+      head = n;
+      tail = head;
+    }
+    current = tail;
+    n->previous = current;
+    current->next = n;
+    tail = n;
+    count++;
+  }
   Node<T> *firstNode() { return head; }
   Node<T> *lastNode() { return tail; }
   // Returns a Node in the list with the value (val) NOT the value itself!
@@ -82,15 +95,30 @@ public: // for debugging keep public
 
   Node<T> *getNode(int pos) {
     if (pos < 0 || head == NULL) {
-      return NULL;
+      cout << "This index does not exist" << endl;
+      cout << "index: " << pos << ": List Size: " << this->size() << endl;
+      exit(0);
+    }
+    if (pos > this->size()) {
+      cout << "This index does not exist" << endl;
+      cout << "index: " << pos << ": List Size: " << this->size() << endl;
+      exit(0);
+    }
+    if (pos == 1) {
+      return head;
+    }
+    if (pos == this->size()) {
+      return tail;
     }
     int i = 0;
-    Node<T> *tmp = head;
-    while (tmp->next != NULL && i < pos) {
-      tmp = tmp->next;
+    current = head;
+    while (current->next != NULL || i != pos && count <= pos) {
+      current = current->next;
       i++;
     }
-    return tmp;
+
+    return current;
+
   } // end of getNode
 
   // pos(argument) is the position of the list
@@ -120,32 +148,26 @@ public: // for debugging keep public
   // if the user chooses the first node or pos = 1
   // if the user chooses the last node or getNode(pos)->next == tail->next;
   Node<T> *insert(int pos, T val) {
-    if (pos < 0) {
-      cout << "Incorrect Number" << endl;
-    }
-
     Node<T> *n = new Node<T>;
     n->value = val;
-
-    if (getNode(pos)->next == tail->next) {
-      n->next = NULL;
-      n->previous = tail = n;
-      return tail;
-    } else if (head == NULL) {
-      n->next = head;
-      n->previous = NULL;
-      head = n;
-    } else {
-      current = getNode(pos);
-      follow = getNode(pos - 1);
-      n->next = current;
-      current->previous = n;
-      follow->next = n;
-      n->previous = follow;
+    if (this->isEmpty() || head == tail) {
+      this->push(val);
+      // cout << "Push object on 0-1 list size" << endl;
+    }
+    if (pos == this->size()) {
+      this->push(val);
+      // cout << "Pushed at the end of the list: input: " << pos << endl;
     }
 
+    current = getNode(pos);
+    follow = current->previous;
+    // getNode(pos)->previous = n;
+    n->next = current;
+    follow->next = n;
+    n->previous = follow;
+    current->previous = n;
+    count++;
     return n;
-
   } // end of insert
 
   // delete the end Node
@@ -171,5 +193,21 @@ public: // for debugging keep public
 int main() {
   string wrd = "hello";
 
-  Dlinklist<string> word(wrd);
+  Dlinklist<string> word;
+  word.push(wrd);
+  // cout << word(wrd) <<  endl;
+
+  // cout << word.getNode(-1)->value << endl;
+  word.push("world");
+  word.insert(2, "herb");
+  cout << word.getNode(1) << endl;
+  cout << word.getNode(3) << endl;
+  cout << word.getNode(2) << endl;
+  // cout << word.getNode(2)->previous->value << endl;
+  cout << "Size: " << word.size() << endl;
+  // word.insert(1,"world");
+  // cout <<word.getNode(1) << endl;
+  // cout << word.firstNode()->previous << endl;
+  // cout << word.getNode(4);
+
 }
